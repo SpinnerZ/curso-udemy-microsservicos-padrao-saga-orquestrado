@@ -20,6 +20,12 @@ spring:
 
   jpa:
     hibernate:
+      # Data Definition Language - define o comportamento do Hibernate em relação ao
+      # banco de dados ao iniciar a aplicação
+      # NONE: Nunca faz modificação no banco de dados
+      # CREATE-DROP: Sempre que inicia a aplicação, cria as tabelas do zero e
+      # ao finalizar a aplicação, apaga as tabelas
+      # UPDATE: Atualiza o esquema do banco de dados conforme as entidades
       ddl-auto: create-drop
     properties:
       hibernate:

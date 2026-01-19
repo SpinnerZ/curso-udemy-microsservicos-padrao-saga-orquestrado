@@ -2,13 +2,17 @@ server:
   port: 3000
 
 spring:
-  kafka:
+  kafka: # Não tem autenticação ou coisa do tipo
+    # Configuração principal. Define o endereço do broker do Kafka.
     bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
     topic:
       start-saga: start-saga
       notify-ending: notify-ending
     consumer:
+      # Define o ID do grupo de consumidores para este serviço.
+      # Cada serviço deve ter um ID de grupo único.
       group-id: order-group
+      # Define o comportamento do consumidor quando não há offsets iniciais.
       auto-offset-reset: latest
 
   data:

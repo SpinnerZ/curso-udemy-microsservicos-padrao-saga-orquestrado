@@ -16,77 +16,82 @@ import org.springframework.kafka.core.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@EnableKafka
-@Configuration
+@EnableKafka // Habilita o suporte ao Kafka no Spring Boot
+@Configuration // Indica que esta classe contém definições de beans
 @RequiredArgsConstructor
 public class KafkaConfig {
 
-    private static final Integer PARTITION_COUNT = 1;
-    private static final Integer REPLICA_COUNT = 1;
+  private static final Integer PARTITION_COUNT = 1;
+  private static final Integer REPLICA_COUNT = 1;
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
+  @Value("${spring.kafka.bootstrap-servers}")
+  private String bootstrapServers;
 
-    @Value("${spring.kafka.consumer.group-id}")
-    private String groupId;
+  @Value("${spring.kafka.consumer.group-id}")
+  private String groupId;
 
-    @Value("${spring.kafka.consumer.auto-offset-reset}")
-    private String autoOffsetReset;
+  @Value("${spring.kafka.consumer.auto-offset-reset}")
+  private String autoOffsetReset;
 
-    @Value("${spring.kafka.topic.start-saga}")
-    private String startSagaTopic;
+  @Value("${spring.kafka.topic.start-saga}")
+  private String startSagaTopic;
 
-    @Value("${spring.kafka.topic.notify-ending}")
-    private String notifyEndingTopic;
+  @Value("${spring.kafka.topic.notify-ending}")
+  private String notifyEndingTopic;
 
-    @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerProps());
-    }
+  @Bean
+  public ConsumerFactory<String, String> consumerFactory() {
+    return new DefaultKafkaConsumerFactory<>(consumerProps());
+  }
 
-    private Map<String, Object> consumerProps() {
-        var props = new HashMap<String, Object>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-        return props;
-    }
+  // Passa as configurações do consumidor Kafka
+  private Map<String, Object> consumerProps() {
+    var props = new HashMap<String, Object>();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+    // São classes do Kafka para serializar e desserializar as mensagens baseadas no tipo da chave e valor
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+    return props;
+  }
 
-    @Bean
-    public ProducerFactory<String, String> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerProps());
-    }
+  @Bean
+  public ProducerFactory<String, String> producerFactory() {
+    return new DefaultKafkaProducerFactory<>(producerProps());
+  }
 
-    private Map<String, Object> producerProps() {
-        var props = new HashMap<String, Object>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return props;
-    }
+  // Passa as configurações do produtor Kafka
+  private Map<String, Object> producerProps() {
+    var props = new HashMap<String, Object>();
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    // São classes do Kafka para serializar e desserializar as mensagens baseadas no tipo da chave e valor
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    return props;
+  }
 
-    @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
-    }
+  @Bean
+  public KafkaTemplate<String, String> kafkaTemplate(
+      ProducerFactory<String, String> producerFactory) {
+    return new KafkaTemplate<>(producerFactory);
+  }
 
-    private NewTopic buildTopic(String name) {
-        return TopicBuilder
-            .name(name)
-            .partitions(PARTITION_COUNT)
-            .replicas(REPLICA_COUNT)
-            .build();
-    }
+  private NewTopic buildTopic(String name) {
+    return TopicBuilder
+        .name(name)
+        .partitions(PARTITION_COUNT)
+        .replicas(REPLICA_COUNT)
+        .build();
+  }
 
-    @Bean
-    public NewTopic startSagaTopic() {
-        return buildTopic(startSagaTopic);
-    }
+  @Bean
+  public NewTopic startSagaTopic() {
+    return buildTopic(startSagaTopic);
+  }
 
-    @Bean
-    public NewTopic notifyEndingTopic() {
-        return buildTopic(notifyEndingTopic);
-    }
+  @Bean
+  public NewTopic notifyEndingTopic() {
+    return buildTopic(notifyEndingTopic);
+  }
 }
